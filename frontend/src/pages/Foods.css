@@ -302,3 +302,152 @@ body {
   .fd-listWrap{ width: 100%; }
   .fd-form{ width: 100%; }
 }
+/* === Phones: always 2 cards per row === */
+@media (max-width: 540px){
+  /* ลด padding ขอบ ๆ ให้พอใส่ 2 ใบ */
+  .fd-container{ padding-left: 10px; padding-right: 10px; }
+
+  /* บังคับ 2 คอลัมน์เสมอ (แทน auto-fill/minmax เดิม) */
+  .fd-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
+
+  /* ทำการ์ดให้กระชับขึ้น */
+  .fd-card{
+    grid-template-rows: 120px auto auto; /* รูป | ชื่อ/ราคา | ปุ่ม + - */
+  }
+  .fd-thumb{ height: 120px; object-fit: cover; }
+}
+
+/* จอเล็กมาก 320px ก็ยัง 2 คอลัมน์ได้อยู่ */
+@media (max-width: 360px){
+  .fd-grid{ gap: 8px; }
+  .fd-card{ grid-template-rows: 110px auto auto; }
+  .fd-thumb{ height: 110px; }
+}
+/* ===== Phone compact: make cards shorter and tidy ===== */
+@media (max-width: 540px){
+  /* กริด 2 คอลัมน์เหมือนเดิม */
+  .fd-grid{
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 10px;
+  }
+
+  /* การ์ดเตี้ยลง */
+  .fd-card{
+    /* ใช้ความสูงตามเนื้อหา ไม่บังคับสูงเกิน */
+    grid-template-rows: auto auto auto;
+    border-radius: 14px;
+  }
+
+  /* รูปเตี้ยลงและนิ่ง */
+  .fd-thumbWrap{ background: #f2f6ff; }
+  .fd-thumb{
+    height: 105px;             /* ↓ จาก 120–150px */
+    object-fit: cover;
+    display: block;
+  }
+
+  /* เนื้อหาแน่นขึ้น */
+  .fd-info{
+    padding: 8px 10px 4px;     /* ↓ ระยะห่าง */
+  }
+  .fd-name{
+    margin: 0 0 4px;
+    font-size: 0.95rem;
+    white-space: nowrap;       /* ตัดให้ 1 บรรทัด */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fd-price{
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+
+  /* แถบปุ่ม + – กระชับ */
+  .fd-ctrl{
+    grid-template-columns: 32px 1fr 32px;
+    gap: 6px;
+    padding: 8px 10px 10px;    /* ↓ padding ล่าง */
+  }
+  .fd-circle{
+    width: 32px; height: 32px; font-size: 18px; line-height: 32px;
+  }
+  .fd-qty{ font-size: 0.95rem; }
+
+  /* ถ้ามีปุ่มตัวเลือก (เช่น ร้อน/เย็น) ใช้ margin เล็ก ๆ */
+  .fd-options, .fd-chips{
+    margin: 6px 10px 0;        /* ปรับตามคลาสที่ใช้ */
+  }
+}
+
+/* จอเล็กมาก (<=360px): ลดอีกนิด */
+@media (max-width: 360px){
+  .fd-thumb{ height: 96px; }
+  .fd-ctrl{ padding: 6px 8px 8px; }
+}
+/* ===== Chips in one row on phones ===== */
+/* ใช้กับคอนเทนเนอร์ที่ห่อชิป เช่น .fd-chips หรือ .fd-options */
+.fd-chips,
+.fd-options,
+.opts-row{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;          /* ✅ ห้ามขึ้นบรรทัดใหม่ */
+  overflow-x: auto;           /* ถ้าไม่พอที่ ให้เลื่อนด้านข้างแทน */
+  -webkit-overflow-scrolling: touch;
+  padding-right: 2px;         /* กันป้ายชนขอบ */
+}
+
+/* ซ่อนสกอลล์บาร์แนวนอนให้ดูสะอาด */
+.fd-chips::-webkit-scrollbar,
+.fd-options::-webkit-scrollbar,
+.opts-row::-webkit-scrollbar { height: 0; }
+
+/* ตัวชิปเองให้ย่อพอดีบรรทัดเดียว */
+.fd-chip,
+.fd-option,
+._chip{
+  white-space: nowrap;        /* ✅ อยู่บรรทัดเดียว */
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* มือถือ: ทำให้กระชับขึ้นอีกนิดเพื่อให้ 3 ชิปวางได้ */
+@media (max-width: 540px){
+  .fd-chip,
+  .fd-option,
+  ._chip{ padding: 5px 10px; font-size: 0.9rem; }
+}
+/* ===== Phone: show full menu names (wrap 2 lines) ===== */
+@media (max-width: 540px){
+  .fd-info{
+    padding: 8px 10px 6px;
+  }
+  .fd-name{
+    /* จากเดิมที่เป็น 1 บรรทัด + ellipsis */
+    white-space: normal;               /* ✅ อนุญาตขึ้นบรรทัดใหม่ */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;             /* ← เปลี่ยนเป็น 3 ถ้าอยากยาวกว่านี้ */
+    -webkit-box-orient: vertical;
+    line-height: 1.2;
+    max-height: calc(1.2em * 2);       /* ให้พอดีกับ 2 บรรทัด */
+    word-break: break-word;            /* ตัดคำไทย/อังกฤษยาว ๆ ได้ */
+    overflow-wrap: anywhere;           /* กันคำยาวชนขอบ */
+    margin: 0 0 6px;
+    font-size: 0.98rem;                /* อ่านง่ายขึ้นนิด */
+  }
+  .fd-price{
+    margin-top: 2px;
+    line-height: 1;
+  }
+
+  /* เผื่อบางการ์ดที่มีตัวเลือก/ปุ่ม ล้น ให้พื้นที่เผื่อด้านล่างนิด */
+  .fd-card{
+    grid-template-rows: auto auto auto;
+  }
+}

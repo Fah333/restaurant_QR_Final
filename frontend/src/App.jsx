@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useEffect, useRef, useState } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 
@@ -12,7 +11,8 @@ import ConfirmSnacks from "./pages/ConfirmSnacks";
 import Foods from "./pages/Foods";
 import ConfirmFoods from "./pages/ConfirmFoods";
 import DrinkPayment from "./pages/DrinkPayment";
-import Success from "./pages/Success"; 
+import Success from "./pages/Success";
+
 import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -29,8 +29,18 @@ import "./App.css";
    Data
 ================================ */
 const HEROES = [
-  { img: "/images/p1.png", title: "หอมกระทะ กลมกล่อมทุกคำ!\nผัดซีอิ๊วสูตรเด็ด เส้นใหญ่เหนียวนุ่ม", price: "50 บาท", alt: "ผัดซีอิ๊วสูตรเด็ด" },
-  { img: "/images/a2.png", title: "เกี๊ยวซ่าหมู\nกรอบนอก นุ่มใน ไส้หมูชุ่มฉ่ำ",                 price: "50 บาท", alt: "เกี๊ยวซ่าหมู" },
+  {
+    img: "/images/p1.png",
+    title: "หอมกระทะ กลมกล่อมทุกคำ!\nผัดซีอิ๊วสูตรเด็ด เส้นใหญ่เหนียวนุ่ม",
+    price: "50 บาท",
+    alt: "ผัดซีอิ๊วสูตรเด็ด",
+  },
+  {
+    img: "/images/a2.png",
+    title: "เกี๊ยวซ่าหมู\nกรอบนอก นุ่มใน ไส้หมูชุ่มฉ่ำ",
+    price: "50 บาท",
+    alt: "เกี๊ยวซ่าหมู",
+  },
 ];
 
 const PROMOS = [
@@ -40,13 +50,13 @@ const PROMOS = [
   { id: 4, name: "หมี่ไก่ฉีก",            price: "50 บาท", img: "/images/p2.png" },
 ];
 
-
 /* ================================
-   Home
+   Home + MobileMenu
 ================================ */
 function Home() {
   const [index, setIndex] = useState(0);
   const timerRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const next = () => setIndex((i) => (i + 1) % HEROES.length);
   const prev = () => setIndex((i) => (i - 1 + HEROES.length) % HEROES.length);
@@ -71,33 +81,76 @@ function Home() {
     const onKey = (e) => {
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") prev();
+      if (e.key === "Escape") setMenuOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  useEffect(() => {
+    document.documentElement.style.overflow = menuOpen ? "hidden" : "";
+    return () => (document.documentElement.style.overflow = "");
+  }, [menuOpen]);
+
   const slide = HEROES[index];
 
   return (
     <div className="page">
-      {/* NAVBAR (คงไว้) */}
+      {/* NAVBAR */}
       <header className="topbar">
         <div className="container">
           <Link to="/" className="brand" aria-label="กลับสู่หน้าแรก">
-
+            <span className="brand__dot" />
             <span className="brand__name">TROK</span>
             <span className="brand__tag">KU KPS</span>
           </Link>
+
+          {/* Desktop nav */}
           <nav className="topnav" aria-label="เมนูหลัก">
             <Link className="topnav__link" to="/foods">เมนูอาหาร</Link>
             <Link className="topnav__link" to="/snacks">ของทานเล่น</Link>
             <Link className="topnav__link" to="/drinks?table=A1">เครื่องดื่ม</Link>
             <Link className="topnav__cta" to="/booking">จองโต๊ะ</Link>
           </nav>
+
+          {/* Mobile menu button */}
+          <button
+            className="menu-btn"
+            aria-label="เปิดเมนู"
+            aria-controls="mobile-drawer"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(true)}
+            type="button"
+          >
+            <span className="menu-btn__bar" />
+            <span className="menu-btn__bar" />
+            <span className="menu-btn__bar" />
+          </button>
         </div>
       </header>
 
-      {/* HERO (รูปเต็มฝั่งซ้าย) */}
+      {/* Mobile Drawer */}
+      <div
+        id="mobile-drawer"
+        className={`mobile-drawer ${menuOpen ? "open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="เมนูนำทาง"
+      >
+        <div className="mobile-drawer__header">
+          <span className="brand__name">TROK</span>
+          <button className="drawer-close" aria-label="ปิดเมนู" onClick={() => setMenuOpen(false)} type="button">✕</button>
+        </div>
+        <nav className="mobile-drawer__nav">
+          <Link to="/foods" onClick={() => setMenuOpen(false)}>🍚 เมนูอาหาร</Link>
+          <Link to="/snacks" onClick={() => setMenuOpen(false)}>🍟 ของทานเล่น</Link>
+          <Link to="/drinks?table=A1" onClick={() => setMenuOpen(false)}>🥤 เครื่องดื่ม</Link>
+          <Link className="mobile-drawer__cta" to="/booking" onClick={() => setMenuOpen(false)}>จองโต๊ะ</Link>
+        </nav>
+      </div>
+      {menuOpen && <div className="drawer-backdrop" onClick={() => setMenuOpen(false)} />}
+
+      {/* HERO */}
       <section
         className="hero"
         onMouseEnter={stopAuto}
@@ -110,7 +163,7 @@ function Home() {
           <button className="nav-btn left" aria-label="ก่อนหน้า" onClick={prev} type="button">‹</button>
 
           <div className="hero__imgWrap" aria-live="polite">
-            <img src={slide.img} alt={slide.alt} />
+            <img src={slide.img} alt={slide.alt} loading="eager" />
           </div>
 
           <div className="hero__text">
@@ -170,7 +223,7 @@ function Home() {
         </div>
       </section>
 
-      {/* Link ผู้ดูแล (คงไว้) */}
+      {/* Admin link */}
       <div className="container">
         <div className="tiny-admin">
           <Link to="/admin/login" state={{ from: { pathname: "/admin" } }}>
@@ -193,7 +246,6 @@ export default function App() {
         <Route path="/booking" element={<Booking />} />
         <Route path="/confirm" element={<ConfirmBooking />} />
         <Route path="/drinks" element={<Drinks />} />
-
         <Route path="/success" element={<Success />} />
         <Route path="/drinks/confirm" element={<ConfirmDrinks />} />
         <Route path="/drinks/payment" element={<DrinkPayment />} />
@@ -208,8 +260,7 @@ export default function App() {
           <Route path="/admin/menu" element={<AdminFoodMenu />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/reports" element={<AdminReports />} />
-          <Route path="/admin/tables" element={<AdminTable />}/> 
-
+          <Route path="/admin/tables" element={<AdminTable />} />
         </Route>
       </Routes>
     </AuthProvider>
