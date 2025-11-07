@@ -8,7 +8,7 @@ async function generateQRCodeForTable(req, res) {
     const t = await Tables.getByNumber(tableNumber);
     if (!t) return res.status(404).json({ message: "โต๊ะไม่พบ" });
 
-    const url = `http://localhost:5173/order?tableId=${t.table_id}`;
+    const url = `https://trokkukps-production.up.railway.app/order?tableId=${t.table_id}`;
     const qrDataUrl = await QRCode.toDataURL(url);
     const expire = new Date(Date.now() + 2 * 60 * 60 * 1000);
 

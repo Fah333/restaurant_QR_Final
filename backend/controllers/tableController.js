@@ -99,47 +99,47 @@ module.exports = {
   },
 
   async approveOrRejectTable(req, res) {
-  try {
-    const { tableNumber } = req.params;
-    const { action } = req.body;
+    try {
+      const { tableNumber } = req.params;
+      const { action } = req.body;
 
-    const t = await Tables.getByNumber(tableNumber);
-    if (!t) return res.status(404).json({ message: "ไม่พบโต๊ะนี้" });
+      const t = await Tables.getByNumber(tableNumber);
+      if (!t) return res.status(404).json({ message: "ไม่พบโต๊ะนี้" });
 
-    if (action === "approve") {
-      const url = `http://localhost:5173/order?tableId=${t.table_id}`;
-      const qrDataUrl = await QRCode.toDataURL(url);
-      const expire = new Date(Date.now() + 2 * 60 * 60 * 1000);
+      if (action === "approve") {
+        const url = `https://trokkukps-production.up.railway.app/order?tableId=${t.table_id}`;
+        const qrDataUrl = await QRCode.toDataURL(url);
+        const expire = new Date(Date.now() + 2 * 60 * 60 * 1000);
 
-      // ✅ เปลี่ยนสถานะเป็นกำลังใช้งาน + สร้าง QR
-      await Tables.update(t.table_id, {
-        status: "กำลังใช้งาน",
-        qr_code: qrDataUrl,
-        qr_expire: expire
-      });
+        // ✅ เปลี่ยนสถานะเป็นกำลังใช้งาน + สร้าง QR
+        await Tables.update(t.table_id, {
+          status: "กำลังใช้งาน",
+          qr_code: qrDataUrl,
+          qr_expire: expire
+        });
 
-      return res.json({
-        message: `อนุมัติโต๊ะ ${tableNumber} แล้ว`,
-        status: "กำลังใช้งาน",
-        qr_code: qrDataUrl,
-        expire
-      });
+        return res.json({
+          message: `อนุมัติโต๊ะ ${tableNumber} แล้ว`,
+          status: "กำลังใช้งาน",
+          qr_code: qrDataUrl,
+          expire
+        });
+      }
+
+      if (action === "reject") {
+        await Tables.clearQRCode(t.table_id);
+        await Tables.setStatusByNumber(tableNumber, "ว่าง");
+
+        return res.json({
+          message: `ปฏิเสธโต๊ะ ${tableNumber} แล้ว (สถานะ: ว่าง)`,
+          status: "ว่าง"
+        });
+      }
+
+      res.status(400).json({ message: "action ต้องเป็น approve หรือ reject เท่านั้น" });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
     }
-
-    if (action === "reject") {
-      await Tables.clearQRCode(t.table_id);
-      await Tables.setStatusByNumber(tableNumber, "ว่าง");
-
-      return res.json({
-        message: `ปฏิเสธโต๊ะ ${tableNumber} แล้ว (สถานะ: ว่าง)`,
-        status: "ว่าง"
-      });
-    }
-
-    res.status(400).json({ message: "action ต้องเป็น approve หรือ reject เท่านั้น" });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
   }
-}
 };
 

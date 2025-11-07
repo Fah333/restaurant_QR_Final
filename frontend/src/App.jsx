@@ -23,6 +23,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminTable from "./pages/admin/AdminTable";
 
+
 import "./App.css";
 
 /* ================================
@@ -254,6 +255,7 @@ export default function App() {
         <Route path="/foods" element={<Foods />} />
         <Route path="/foods/confirm" element={<ConfirmFoods />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+
         <Route element={<ProtectedRoute />}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/reservation/:id" element={<AdminReservationDetail />} />
